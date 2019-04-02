@@ -17,11 +17,9 @@ from sqlalchemy import create_engine, Column, Integer, VARCHAR, Date, Float, Big
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from config.get_arxview_config import fi_dm_ebi, user, password, connection_string
+from config.get_arxview_config import fi_dm_ebi, user, password, connection_string, api_url
 
 urllib3.disable_warnings(InsecureRequestWarning)
-
-api = 'https://arxview.coh.org:443/api'
 
 s = requests.Session()
 s.auth = HTTPBasicAuth(user, password)
@@ -29,7 +27,7 @@ s.auth = HTTPBasicAuth(user, password)
 
 def query_data(method, parameters=None):
     # log in
-    r = s.post(f'{api}/login.php', {'u': user, 'p': password}, verify=False)
+    r = s.post(f'{api_url}/login.php', {'u': user, 'p': password}, verify=False)
     r.raise_for_status()
 
     # establish parameters
@@ -39,13 +37,13 @@ def query_data(method, parameters=None):
         params = {**params, **parameters}
 
     # query the api
-    r = s.get(f'{api}/{method}', params=params, verify=False)
+    r = s.get(f'{api_url}/{method}', params=params, verify=False)
     r.raise_for_status()
 
     df = pd.DataFrame.from_dict(r.json())
 
     # log out before returning dataframe
-    r = s.get(f'{api}/logout.php', verify=False)
+    r = s.get(f'{api_url}/logout.php', verify=False)
     r.raise_for_status()
 
     return df
