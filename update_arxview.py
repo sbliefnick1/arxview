@@ -54,6 +54,12 @@ def calculate_lin_reg(dataframe, asset_id, num_cols, str_cols, plot=False):
     df = dataframe[dataframe.arx_asset_id == asset_id][['discovery_date'] + num_cols + str_cols]
     df = df[~np.isnan(df.array_reported_usage)]
 
+    if df.empty:
+        df = pd.DataFrame(columns=['date', 'usage_trend', 'total_allocation', 'total_capacity',
+                                   'total_raw_capacity', 'array_reported_usage', 'arx_asset_id',
+                                   'assettype_name', 'datacenter_name', 'name', 'vendor'])
+        return df
+
     # get arrays of values for inputs
     dates = df.discovery_date.to_numpy()
     y = df.array_reported_usage.to_numpy()
